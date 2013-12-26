@@ -721,13 +721,19 @@ tsip_dialog.prototype.signal = function (i_code, s_phrase, o_message) {
 tsip_dialog.prototype.timer_schedule = function (T, N) {
     this.timer_cancel(N);
     var This = this;
-    var s_code = tsk_string_format("This.o_timer{1} = setTimeout(function(){ __tsip_dialog_{0}_timer_callback(This, This.o_timer{1})}, This.i_timer{1});", T, N);
-    eval(s_code);
+    var o_timer = tsk_string_format('o_timer{0}', N);
+    var i_timer = tsk_string_format('i_timer{0}', N);
+    var callback = tsk_string_format('__tsip_dialog_{0}_timer_callback', T);
+    // Remove eval
+    // var s_code = tsk_string_format("This.o_timer{1} = setTimeout(function(){ __tsip_dialog_{0}_timer_callback(This, This.o_timer{1})}, This.i_timer{1});", T, N);
+    This[o_timer] = setTimeout(function(){ window[callback](This, This[o_timer]); }, This[i_timer]);
 }
 
 tsip_dialog.prototype.timer_cancel = function (N) {
-    var s_code = tsk_string_format("if(this.o_timer{0}) { clearTimeout(this.o_timer{0}); this.o_timer{0} = null; }", N);
-    eval(s_code);
+    var o_timer = tsk_string_format('o_timer{0}', N);
+    // Remove eval
+    // var s_code = tsk_string_format("if(this.o_timer{0}) { clearTimeout(this.o_timer{0}); this.o_timer{0} = null; }", N);
+    if (this[o_timer]) { clearTimeout(this[o_timer]); this[o_timer] = null; }
 }
 
 tsip_dialog.prototype.callback = function (e_event_type, o_message) {
