@@ -298,7 +298,7 @@ tsip_dialog.prototype.request_new = function (s_method) {
                         */
                         o_request.add_header(new tsip_header_Expires(this.i_expires / 1000));
                     }
-                    s_contact = tsk_string_format("m: \"{1}\"<{0}:{2}@{3}:{4};>",
+                    s_contact = tsk_string_format("m: \"{1}\"<{0}:{2}@{3}:{4}>",
                         "sip",
                         o_stack.identity.s_display_name,
                         o_uri_from.s_user_name,
