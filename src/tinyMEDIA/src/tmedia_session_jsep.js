@@ -223,28 +223,22 @@ tmedia_session_jsep.prototype.decorate_ro = function (b_remove_bundle) {
 
         // change profile if not secure
         //!\ firefox nighly: DTLS-SRTP only, chrome: SDES-SRTP
+        var b_fingerprint = !!this.o_sdp_ro.get_header_a("fingerprint"); // session-level fingerprint
         while ((o_hdr_M = this.o_sdp_ro.get_header_at(tsdp_header_type_e.M, i_index++))) {
-            // check for "crypto:" lines (event if it's not valid to provide "crypto" lines in non-secure SDP many clients do it, so, just check)
-            if (!tmedia_session_jsep01.mozThis && o_hdr_M.s_proto.indexOf("SAVP") < 0) {
-                for (i = 0; i < o_hdr_M.ao_hdr_A.length; ++i) {
-                    if (o_hdr_M.ao_hdr_A[i].s_field == "crypto") {
-                        o_hdr_M.s_proto = "RTP/SAVPF";
-                        break;
-                    }
+            // check for "crypto:"/"fingerprint:" lines (event if it's not valid to provide "crypto" lines in non-secure SDP many clients do it, so, just check)
+            if (!b_w4a && o_hdr_M.s_proto.indexOf("SAVP") < 0) {
+                if (o_hdr_M.find_a("crypto")) {
+                    o_hdr_M.s_proto = "RTP/SAVPF";
+                    break;
+                }
+                else if (b_fingerprint || o_hdr_M.find_a("fingerprint")) {
+                    o_hdr_M.s_proto = "UDP/TLS/RTP/SAVPF";
+                    break;
                 }
             }
 
-            // rfc5939: "acap:crypto"
-            if (!tmedia_session_jsep01.mozThis && o_hdr_M.s_proto.indexOf("SAVP") < 0) {
-                i = 0;
-                while((o_hdr_A = rfc5939_get_headerA_at(this.o_sdp_ro, o_hdr_M.s_media, "crypto", i++))){
-                    rfc5939_acap_ensure(o_hdr_A);
-                    o_hdr_M.s_proto = "RTP/SAVPF";
-                    // do not break => find next "acap:crypto" lines and ensure them
-                }
-            }
-            // rfc5939: "acap:fingerprint,setup,connection" => Mozilla Nightly
-            if (tmedia_session_jsep01.mozThis && o_hdr_M.s_proto.indexOf("SAVP") < 0) {
+            // rfc5939: "acap:fingerprint,setup,connection"
+            if (!b_w4a && o_hdr_M.s_proto.indexOf("SAVP") < 0) {
                 if((o_hdr_A = rfc5939_get_headerA_at(this.o_sdp_ro, o_hdr_M.s_media, "fingerprint", 0))){
                     rfc5939_acap_ensure(o_hdr_A);
                     if((o_hdr_A = rfc5939_get_headerA_at(this.o_sdp_ro, o_hdr_M.s_media, "setup", 0))){
@@ -256,14 +250,25 @@ tmedia_session_jsep.prototype.decorate_ro = function (b_remove_bundle) {
                     o_hdr_M.s_proto = "UDP/TLS/RTP/SAVP";
                 }
             }
+            // rfc5939: "acap:crypto". Only if DTLS is OFF
+            if (!b_w4a && o_hdr_M.s_proto.indexOf("SAVP") < 0) {
+                i = 0;
+                while((o_hdr_A = rfc5939_get_headerA_at(this.o_sdp_ro, o_hdr_M.s_media, "crypto", i++))){
+                    rfc5939_acap_ensure(o_hdr_A);
+                    o_hdr_M.s_proto = "RTP/SAVPF";
+                    // do not break => find next "acap:crypto" lines and ensure them
+                }
+            }
 
             // HACK: Nightly 20.0a1 uses RTP/SAVPF for DTLS-SRTP which is not correct. More info at https://bugzilla.mozilla.org/show_bug.cgi?id=827932
-            if(tmedia_session_jsep01.mozThis && o_hdr_M.s_proto.indexOf("UDP/TLS/RTP/SAVP") != -1){
+            // Same for chrome: https://code.google.com/p/sipml5/issues/detail?id=92
+            if(!b_w4a && o_hdr_M.s_proto.indexOf("UDP/TLS/RTP/SAVP") != -1){
                 o_hdr_M.s_proto = "RTP/SAVPF";
             }
         }
     }
     return 0;
+
 }
 
 tmedia_session_jsep.prototype.subscribe_stream_events = function () {
