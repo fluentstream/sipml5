@@ -485,7 +485,7 @@ tmedia_session_jsep00.prototype.__set_ro = function (o_sdp, b_is_offer) {
 function tmedia_session_jsep01(o_mgr) {
     tmedia_session_jsep.call(this, o_mgr);
     this.o_media_constraints = 
-    {   'optional': { 'DtlsSrtpKeyAgreement': 'false' }, 
+    {   'optional': [{ 'DtlsSrtpKeyAgreement': 'false' }], 
 	'mandatory': 
         {
             'OfferToReceiveAudio': !!(this.e_type.i_id & tmedia_type_e.AUDIO.i_id),
