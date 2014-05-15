@@ -488,7 +488,8 @@ function tmedia_session_jsep01(o_mgr) {
     { 'mandatory': 
         {
             'OfferToReceiveAudio': !!(this.e_type.i_id & tmedia_type_e.AUDIO.i_id),
-            'OfferToReceiveVideo': !!(this.e_type.i_id & tmedia_type_e.VIDEO.i_id)
+            'OfferToReceiveVideo': !!(this.e_type.i_id & tmedia_type_e.VIDEO.i_id),
+	    'DtlsSrtpKeyAgreement':'false'
         }
      };
 
