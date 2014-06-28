@@ -720,7 +720,7 @@ tsip_stack.prototype.__set = function (ao_params) {
                     if(!tsk_string_is_null_or_empty(o_curr.ao_values[0])){
                         try{
                             if (o_curr.ao_values[0] instanceof String || typeof o_curr.ao_values[0] == "string") {
-                                this.network.ao_ice_servers = JSON.parse(o_curr.ao_values[0]);
+				this.network.ao_ice_servers = JSON.parse(o_curr.ao_values[0]);
                             }
                             else if(o_curr.ao_values[0] instanceof Array || typeof o_curr.ao_values[0] == "array"){
                                 this.network.ao_ice_servers = o_curr.ao_values[0];
