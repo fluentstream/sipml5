@@ -45,7 +45,9 @@ tsip_uri.prototype.compare = function (o_uri) {
 tsip_uri.prototype.clone = function (b_with_params, b_quote) {
     var s_str = tsip_uri_tostring(this, b_with_params, b_quote);
     if (s_str) {
-        return tsip_uri.prototype.Parse(s_str);
+        var clonedUri = tsip_uri.prototype.Parse(s_str);
+	clonedUri.s_display_name = this.s_display_name;
+	return clonedUri;
     }
     return null;
 }
